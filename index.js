@@ -4,17 +4,26 @@ module.exports = function (session) {
   const Store = session.Store;
   
   class FirebirdStore extends Store {
-    constructor(options) {
+    constructor({ maxAge, tableName, ...options }) {
       super(options);
       
-      this.pool = Firebird.pool(2, options);
+      this.tableName = tableName || 'session';
+      this.maxAge = maxAge || (3600 * 1000);
+      this.pool = Firebird.pool(null, options);
     }
-    
+
     destroy(sid, callback) {
       this.pool.get((err, db) => {
         if (err) return callback(err);
         
-        db.query('DELETE FROM session WHERE sid = ?', [sid], callback);
+        const sql = `
+          DELETE FROM ${this.tableName}
+          WHERE sid = ?
+        `;
+        
+        const params = [sid];
+        
+        db.query(sql, params, callback);
       });
     }
     
@@ -22,10 +31,16 @@ module.exports = function (session) {
       this.pool.get((err, db) => {
         if (err) return callback(err);
         
-        db.query('SELECT * FROM session WHERE sid = ?', [sid], (err, rows) => {
+        const sql = `
+          SELECT session 
+          FROM ${this.tableName} 
+          WHERE sid = ? AND expires_at > CURRENT_TIMESTAMP
+        `;
+        
+        const params = [sid];
+        
+        db.query(sql, params, (err, [row]) => {
           if (err) return callback(err);
-          
-          const [row] = rows;
           if (!row) return callback(null, null);
           
           return callback(null, JSON.parse(row.session));
@@ -33,12 +48,26 @@ module.exports = function (session) {
       })
     }
     
+    getExpireTime(maxAge) {
+      return Date.now() + (maxAge = this.maxAge);
+    }
+    
     set(sid, session, callback) {
       this.pool.get((err, db) => {
         if (err) return callback(err);
         
-        const data = JSON.stringify(session);
-        db.query('UPDATE session = ? FROM session WHERE sid = ?', [data, sid], callback);
+        const sql = `
+          UPDATE OR INSERT INTO ${this.tableName} (sid, session, expires_at) 
+          VALUES (?, ?, ?) MATCHING (sid)
+        `;
+        
+        const params = [
+          sid,
+          JSON.stringify(session),
+          this.getExpireTime(session.cookie.maxAge)
+        ];
+        
+        db.query(sql, params, callback);
       });
     }
   }
