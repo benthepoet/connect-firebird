@@ -52,12 +52,14 @@ module.exports = function (session) {
         const params = [sid];
         
         db.query(sql, params, (err, [row]) => {
+          db.detach();
+          
           if (err) return callback(err);
           if (!row) return callback(null, null);
           
           return callback(null, JSON.parse(row.session));
         });
-      })
+      });
     }
     
     getExpireTime(maxAge) {

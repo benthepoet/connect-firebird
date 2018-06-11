@@ -3,8 +3,11 @@
   "version": "1.0.0",
   "description": "A Firebird session store for Connect/Express.",
   "main": "index.js",
+  "directories": {
+    "test": "./test"
+  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha"
   },
   "repository": {
     "type": "git",
@@ -18,5 +21,10 @@
   "homepage": "https://github.com/benthepoet/connect-firebird#readme",
   "dependencies": {
     "node-firebird": "^0.8.6"
+  },
+  "devDependencies": {
+    "coveralls": "^3.0.1",
+    "mocha": "^5.2.0",
+    "nyc": "^12.0.2"
   }
 }
