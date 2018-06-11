@@ -70,6 +70,24 @@ module.exports = function (session) {
         db.query(sql, params, callback);
       });
     }
+    
+    touch(sid, session, callback) {
+      this.pool.get((err, db) => {
+        if (err) return callback(err);
+        
+        const sql = `
+          UPDATE session SET expires_at = ?
+          WHERE sid = ?
+        `;
+        
+        const params = [
+          this.getExpireTime(session.cookie.maxAge),
+          sid
+        ];
+        
+        db.query(sql, params, callback);
+      });
+    }
   }
   
   return FirebirdStore;
