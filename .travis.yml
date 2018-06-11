@@ -11,6 +11,7 @@ before_install:
   - sudo apt-get update -qq
   - sudo DEBIAN_FRONTEND=noninteractive apt-get install -qq firebird2.5-superclassic 
   - sudo gsec -modify SYSDBA -pw masterkey
+  - sudo isql-fb -i "./schema.sql" $FIREBIRD_DATA/session.fdb
 
 script:
   - nyc npm test
