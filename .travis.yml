@@ -11,7 +11,7 @@ before_install:
   - sudo apt-get update -qq
   - sudo DEBIAN_FRONTEND=noninteractive apt-get install -qq firebird2.5-superclassic 
   - sudo gsec -modify SYSDBA -pw masterkey
-  - echo "CREATE DATABASE '${FIREBIRD_DATA}/session.fdb; QUIT;" | sudo isql-fb
+  - echo "CREATE DATABASE '${FIREBIRD_DATA}/session.fdb'; QUIT;" | sudo isql-fb
   - sudo isql-fb -i "./schema.sql" $FIREBIRD_DATA/session.fdb
   - sudo chown firebird:firebird $FIREBIRD_DATA/session.fdb
 
