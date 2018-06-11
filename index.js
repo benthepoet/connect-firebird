@@ -7,15 +7,41 @@ module.exports = function (session) {
     constructor(options) {
       super(options);
       
-      this.db = Firebird.attach(options, (err, db) => {
-        if (err) {
-          this.emit('error', err)
-          return;
-        };
+      this.pool = Firebird.pool(2, options);
+    }
+    
+    destroy(sid, callback) {
+      this.pool.get((err, db) => {
+        if (err) return callback(err);
         
-        this.db = db;
-        this.emit('connect');
+        db.query('DELETE FROM session WHERE sid = ?', [sid], callback);
+      });
+    }
+    
+    get(sid, callback) {
+      this.pool.get((err, db) => {
+        if (err) return callback(err);
+        
+        db.query('SELECT * FROM session WHERE sid = ?', [sid], (err, rows) => {
+          if (err) return callback(err);
+          
+          const [row] = rows;
+          if (!row) return callback(null, null);
+          
+          return callback(null, JSON.parse(row.session));
+        });
+      })
+    }
+    
+    set(sid, session, callback) {
+      this.pool.get((err, db) => {
+        if (err) return callback(err);
+        
+        const data = JSON.stringify(session);
+        db.query('UPDATE session = ? FROM session WHERE sid = ?', [data, sid], callback);
       });
     }
   }
+  
+  return FirebirdStore;
 };
