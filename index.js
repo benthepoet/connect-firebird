@@ -11,6 +11,18 @@ module.exports = function (session) {
       this.maxAge = maxAge || (3600 * 1000);
       this.pool = Firebird.pool(null, options);
     }
+    
+    clear(callback) {
+      this.pool.get((err, db) => {
+        if (err) return callback(err);
+      
+        const sql = `
+          DELETE FROM ${this.tableName}
+        `;
+        
+        db.query(sql, callback);
+      });
+    }
 
     destroy(sid, callback) {
       this.pool.get((err, db) => {
