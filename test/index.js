@@ -13,7 +13,7 @@ describe('FirebirdStore', () => {
     const FirebirdStore = createStore(session);
     
     const options = {
-      database: '/var/lib/firebird/data/session.fdb',
+      database: `${process.env.FIREBIRD_DATA}/session.fdb`,
       user: 'sysdba',
       password: 'masterkey'
     };
