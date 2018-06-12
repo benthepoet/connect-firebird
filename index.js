@@ -20,7 +20,11 @@ module.exports = function (session) {
           DELETE FROM ${this.tableName}
         `;
         
-        db.query(sql, callback);
+        db.execute(sql, err => {
+          db.detach();
+          
+          return err ? callback(err) : callback();
+        });
       });
     }
 
@@ -35,7 +39,11 @@ module.exports = function (session) {
         
         const params = [sid];
         
-        db.query(sql, params, callback);
+        db.execute(sql, params, err => {
+          db.detach();
+          
+          return err ? callback(err) : callback();
+        });
       });
     }
     
@@ -51,12 +59,14 @@ module.exports = function (session) {
         
         const params = [sid];
         
-        db.query(sql, params, (err, [row]) => {
+        db.execute(sql, params, (err, [row]) => {
+          db.detach();
+          
           if (err) return callback(err);
           if (!row) return callback(null, null);
           
-          const sessionBuffer = row.session;
-          return callback(null, JSON.parse(sessionBuffer.toString()));
+          const [buffer] = row;
+          return callback(null, JSON.parse(buffer.toString()));
         });
       });
     }
@@ -80,7 +90,11 @@ module.exports = function (session) {
           this.getExpireTime(session.cookie.maxAge)
         ];
         
-        db.query(sql, params, callback);
+        db.execute(sql, params, err => {
+          db.detach();
+          
+          return err ? callback(err) : callback();
+        });
       });
     }
     
@@ -98,7 +112,11 @@ module.exports = function (session) {
           sid
         ];
         
-        db.query(sql, params, callback);
+        db.execute(sql, params, err => {
+          db.detach();
+          
+          return err ? callback(err) : callback();
+        });
       });
     }
   }

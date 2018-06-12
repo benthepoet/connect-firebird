@@ -16,16 +16,13 @@ describe('FirebirdStore', () => {
     const options = {
       database: `${process.env.FIREBIRD_DATA}/session.fdb`,
       user: 'sysdba',
-      password: 'masterkey',
-      lowercase_keys: true
+      password: 'masterkey'
     };
     sessionStore = new FirebirdStore(options);
   });
   
-  after(done => {
-    sessionStore.pool.internaldb.forEach(db => db.detach());
+  after(() => {
     sessionStore.pool.destroy();
-    done();
   });
   
   it('should return null when session is not found', done => {
@@ -50,6 +47,20 @@ describe('FirebirdStore', () => {
       done();
     });
   });
+  
+  it('should touch session', done => {
+    sessionStore.touch(sessionId, sessionData, err => {
+      assert.ok(!err, err);
+      done();
+    });
+  });
+  
+  it('should destroy session', done => {
+    sessionStore.destroy(sessionId, err => {
+      assert.ok(!err, err);
+      done();
+    });
+  })
   
   it('should clear all sessions', done => {
     sessionStore.clear(err => {
