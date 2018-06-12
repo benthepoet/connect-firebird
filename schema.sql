@@ -1,5 +1,5 @@
 CREATE TABLE session (
     sid VARCHAR(255) NOT NULL PRIMARY KEY,
-    session BLOB SUB_TYPE TEXT NOT NULL,
+    session VARCHAR(8190) NOT NULL,
     expires_at TIMESTAMP NOT NULL
 );

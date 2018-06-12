@@ -52,12 +52,11 @@ module.exports = function (session) {
         const params = [sid];
         
         db.query(sql, params, (err, [row]) => {
-          db.detach();
-          
           if (err) return callback(err);
           if (!row) return callback(null, null);
           
-          return callback(null, JSON.parse(row.session));
+          const sessionBuffer = row.session;
+          return callback(null, JSON.parse(sessionBuffer.toString()));
         });
       });
     }
