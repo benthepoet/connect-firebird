@@ -5,7 +5,9 @@ const createStore = require('../');
 describe('FirebirdStore', () => {
   
   const sessionId = Date.now();
-  const sessionData = { cookie: {} };
+  const sessionData = { 
+    cookie: Object.create(null)
+  };
   
   let sessionStore;
   
